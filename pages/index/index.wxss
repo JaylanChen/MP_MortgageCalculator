@@ -1,0 +1,62 @@
+/**index.wxss**/
+
+.form-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 55rpx;
+}
+
+.line {
+  padding-bottom: 30rpx;
+  border-bottom: 1px solid #ccc;
+}
+
+.loan {
+  flex-direction: row;
+}
+
+.loanItem {
+  width: 100%;
+}
+
+.totalLoan {
+  font-size: 50rpx;
+  margin-top: 10rpx;
+  padding-top: 30rpx;
+}
+
+.double .totalLoan {
+  font-size: 32rpx;
+}
+
+.double .loanItem {
+  width: 46%;
+}
+
+.double .totalLoan {
+  padding-top: 20rpx;
+}
+
+.radioGroup {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.dropdown {
+  width: 8px;
+  height: 8px;
+  border-style: solid;
+  border-width: 1px 1px 0 0;
+  transform: rotate(135deg);
+  margin-bottom: 5rpx;
+  margin-left: 20rpx;
+}
+
+.actions {
+  position: fixed;
+  bottom: 50rpx;
+  width: 86%;
+}
