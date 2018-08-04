@@ -1,5 +1,6 @@
 // pages/detail/detail.js
 const util = require('../../utils/util.js')
+const mortgageHelper = require('../../utils/mortgageHelper.js')
 //获取应用实例
 const app = getApp()
 
@@ -23,89 +24,19 @@ Page({
    */
   onLoad: function (options) {
     let mortgage = app.globalData.mortgageData;
-    let monthlyPayment = 0;
-    let balance = 0;
-    let paymentMonth = mortgage.paymentYear * 12;
-    let totalLoan = 0;
-    let totalPaid = 0;
     let loanTypeName = '等额本息(每月等额还款)';
     if(mortgage.paymentMethod === 2){
       loanTypeName = '等额本金(每月递减还款)';
     }
-    switch (mortgage.loanType) {
-      case '1':
-        totalLoan = mortgage.businessTotalLoan;
-        // 等额本息
-        if (mortgage.paymentMethod === 1) {
-          let interest1 = util.equalPrincipalAndInterest(mortgage.businessTotalLoan, paymentMonth, mortgage.businessLoanRate);
-          monthlyPayment = interest1.monthlyPayment;
-          totalPaid = monthlyPayment * paymentMonth;
-        } else {
-          let principal1 = util.equalPrincipal(mortgage.businessTotalLoan, paymentMonth, mortgage.businessLoanRate);
-          monthlyPayment = principal1.monthlyPayment;
-          balance = principal1.balance;
-          totalPaid = monthlyPayment;
-          for (let j = 1; j < paymentMonth; j++) {
-            //调用函数计算: 本金月还款额
-            let tempPrincial = util.equalPrincipal(mortgage.businessTotalLoan, paymentMonth, mortgage.businessLoanRate, j);
-            totalPaid += tempPrincial.monthlyPayment;
-          }
-        }
-        break;
-      case '2':
-        totalLoan = mortgage.gjjTotalLoan;
-        // 等额本息
-        if (mortgage.paymentMethod === 1) {
-          let interest2 = util.equalPrincipalAndInterest(mortgage.gjjTotalLoan, paymentMonth, mortgage.gjjLoanRate);
-          monthlyPayment = interest2.monthlyPayment;
-          totalPaid = monthlyPayment * paymentMonth;
-        } else {
-          let principal2 = util.equalPrincipal(mortgage.gjjTotalLoan, paymentMonth, mortgage.gjjLoanRate);
-          monthlyPayment = principal2.monthlyPayment;
-          balance = principal2.balance;
-          totalPaid = monthlyPayment;
-          for (let j = 1; j < paymentMonth; j++) {
-            //调用函数计算: 本金月还款额
-            let tempPrincial = util.equalPrincipal(mortgage.gjjTotalLoan, paymentMonth, mortgage.gjjLoanRate, j);
-            totalPaid += tempPrincial.monthlyPayment;
-          }
-        }
-        break;
-      case '3':
-        totalLoan = mortgage.businessTotalLoan + mortgage.gjjTotalLoan;
-        // 等额本息
-        if (mortgage.paymentMethod === 1) {
-          let syInterest = util.equalPrincipalAndInterest(mortgage.businessTotalLoan, paymentMonth, mortgage.businessLoanRate);
-          let gjjInterest = util.equalPrincipalAndInterest(mortgage.gjjTotalLoan, paymentMonth, mortgage.gjjLoanRate);
-          monthlyPayment = gjjInterest.monthlyPayment + syInterest.monthlyPayment;
-          totalPaid = monthlyPayment * paymentMonth;
-        } else {
-          let syPrincipal = util.equalPrincipal(mortgage.businessTotalLoan, paymentMonth, mortgage.businessLoanRate);
-          let gjjPrincipal = util.equalPrincipal(mortgage.gjjTotalLoan, paymentMonth, mortgage.gjjLoanRate);
-          monthlyPayment = syPrincipal.monthlyPayment + gjjPrincipal.monthlyPayment;
-          balance = gjjPrincipal.balance + syPrincipal.balance;
-          
-          totalPaid = monthlyPayment;
-          for (let j = 1; j <= paymentMonth; j++) {
-            //调用函数计算: 本金月还款额
-            let tempPrincial = util.equalPrincipal(mortgage.businessTotalLoan, paymentMonth, mortgage.businessLoanRate, j);
-            totalPaid += tempPrincial.monthlyPayment;
-          }
-          for (let k = 1; k <= paymentMonth; k++) {
-            //调用函数计算: 本金月还款额
-            let tempPrincial = util.equalPrincipal(mortgage.businessTotalLoan, paymentMonth, mortgage.businessLoanRate, k);
-            totalPaid += tempPrincial.monthlyPayment;
-          }
-        }
-        break;
-    }
-    monthlyPayment = util.retainDecimal(monthlyPayment);
+    var mortgageDetail = mortgageHelper.calculatePaymentDetail(mortgage);
+
+    mortgageDetail.monthlyPayment = util.retainDecimal(mortgageDetail.monthlyPayment);
     let balanceStr = '';
-    if (balance > 0) {
-      balance = util.retainDecimal(balance);
-      balanceStr = balance.toLocaleString();
+    if (mortgageDetail.balance > 0) {
+      mortgageDetail.balance = util.retainDecimal(mortgageDetail.balance);
+      balanceStr = mortgageDetail.balance.toLocaleString();
     }
-    let paymentMonthStr = monthlyPayment.toLocaleString();
+    let paymentMonthStr = mortgageDetail.monthlyPayment.toLocaleString();
     let monthlyPaymentClass = '';
     if (paymentMonthStr.length < 8) {
       monthlyPaymentClass = '';
@@ -116,17 +47,16 @@ Page({
     } else{
       monthlyPaymentClass = 'bigNum3';
     }
-    totalPaid = totalPaid / 10000.0;
-    //totalPaid = totalPaid.toFixed(2);
-    totalPaid = util.retainDecimal(totalPaid);
-    let totalInterest = totalPaid - totalLoan;
+    //mortgageDetail.totalPaid = mortgageDetail.totalPaid.toFixed(2);
+    mortgageDetail.totalPaid = util.retainDecimal(mortgageDetail.totalPaid);
+    mortgageDetail.totalInterest = util.retainDecimal(mortgageDetail.totalInterest);
     this.setData({
       monthlyPaymentStr: paymentMonthStr,
       monthlyPaymentClass: monthlyPaymentClass,
       balanceStr: balanceStr,
-      totalLoanStr: totalLoan.toLocaleString(),
-      totalInterestStr: totalInterest.toLocaleString(),
-      TotalPaidStr: totalPaid.toLocaleString(),
+      totalLoanStr: mortgageDetail.totalLoan.toLocaleString(),
+      totalInterestStr: mortgageDetail.totalInterest.toLocaleString(),
+      TotalPaidStr: mortgageDetail.totalPaid.toLocaleString(),
       loanTypeName: loanTypeName
     });
   },
