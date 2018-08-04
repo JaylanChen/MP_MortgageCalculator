@@ -13,6 +13,8 @@ Page({
     loanType: '1',
     startDate: undefined,
 
+    businessTotalLoanStr: '',
+    gjjTotalLoanStr: '',
     showGJJ: false,
     showBusiness: true,
     gjjFocus: false,
@@ -100,16 +102,40 @@ Page({
   },
   //事件处理函数
   businessTotalLoanInput: function (e) {
-    let value = e.detail.value || 0;    
-    value = util.retainDecimal(value);
-    this.setData({
-      businessTotalLoan: value
-    })
+    let value = e.detail.value || 0;
+    if(value === 0){
+      this.setData({
+        businessTotalLoan: 0,
+        businessTotalLoanStr: ''
+      })
+      return;
+    }
+    let valueStr = value.toString();
+    if(valueStr.indexOf(".") < valueStr.length -2){
+      value = util.retainDecimal(value);
+      this.setData({
+        businessTotalLoan: value,
+        businessTotalLoanStr: value
+      })
+    }
   },
   gjjTotalLoanInput: function (e) {
-    this.setData({
-      gjjTotalLoan: e.detail.value || 0
-    })
+    let value = e.detail.value || 0.0;
+    if(value === 0){
+      this.setData({
+        gjjTotalLoan: 0,
+        gjjTotalLoanStr: ''
+      })
+      return;
+    }
+    let valueStr = value.toString();
+    if(valueStr.indexOf(".") < valueStr.length -2){
+      value = util.retainDecimal(value);
+      this.setData({
+        gjjTotalLoan: value,
+        gjjTotalLoanStr: value
+      })
+    }
   },
   loanTypeChange: function (e) {
     var loanType = e.detail.value;

@@ -107,12 +107,14 @@ Page({
     }
     let paymentMonthStr = monthlyPayment.toLocaleString();
     let monthlyPaymentClass = '';
-    if (paymentMonthStr.length > 8) {
+    if (paymentMonthStr.length < 8) {
+      monthlyPaymentClass = '';
+    } else if (paymentMonthStr.length < 10) {
       monthlyPaymentClass = 'bigNum1';
-    } else if (paymentMonthStr.length > 10) {
+    }else if (paymentMonthStr.length <14) {
       monthlyPaymentClass = 'bigNum2';
-    } else if (paymentMonthStr.length > 10) {
-      monthlyPaymentClass = 'bigNum12';
+    } else{
+      monthlyPaymentClass = 'bigNum3';
     }
     totalPaid = totalPaid / 10000.0;
     //totalPaid = totalPaid.toFixed(2);
