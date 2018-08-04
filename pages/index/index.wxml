@@ -3,11 +3,11 @@
   <view class="form-group loan {{loanType == 3 ? 'double': ''}}">
     <view class="loanItem" wx:if="{{showBusiness}}">
       <label>商业贷款总额(万)</label>
-      <input type="number" value="{{businessTotalLoan}}" placeholder="请输入商业贷款金额" class="totalLoan line" bindinput="businessTotalLoanInput" focus="{{businessFocus}}"/>
+      <input type="digit" value="" placeholder="请输入商业贷款金额" class="totalLoan line" bindinput="businessTotalLoanInput" focus="{{businessFocus}}"/>
     </view>
     <view class="loanItem" wx:if="{{showGJJ}}">
       <label>公积金贷款金额(万)</label>
-      <input type="number" value="{{gjjTotalLoan}}" placeholder="请输入公积金贷款金额" class="totalLoan line" bindinput="gjjTotalLoanInput" focus="{{gjjFocus}}"/>
+      <input type="digit" value="{{}}" placeholder="请输入公积金贷款金额" class="totalLoan line" bindinput="gjjTotalLoanInput" focus="{{gjjFocus}}"/>
     </view>
   </view>
 
@@ -35,13 +35,13 @@
     </picker>
   </view>
 
-  <view class="form-group line">
+  <!-- <view class="form-group line">
     <label>首次还款日期</label>
     <picker mode="date" value="{{startDateStr}}" bindchange="startDateChange" range-key="text">
       <text>{{startDateStr}}</text>
       <icon class="dropdown"></icon>
     </picker>
-  </view>
+  </view> -->
 
   <view class="form-group line" wx:if="{{showBusiness}}">
     <label>商业贷款利率</label>
@@ -53,7 +53,7 @@
 
   <view class="form-group line" wx:if="{{showGJJ}}">
     <label>公积金贷款利率</label>
-    <picker mode="selector" value="{{gjjLoanRateIndex}}" range="{{gjjLoanRateArr}}" bindchange="startDateChange" range-key="text">
+    <picker mode="selector" value="{{gjjLoanRateIndex}}" range="{{gjjLoanRateArr}}" bindchange="gjjLoanRateChange" range-key="text">
       <text>{{gjjLoanRateArr[gjjLoanRateIndex].text}}</text>
       <icon class="dropdown"></icon>
     </picker>

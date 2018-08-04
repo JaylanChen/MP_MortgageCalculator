@@ -5,5 +5,8 @@ App({
     var logs = wx.getStorageSync('totalLoan') || []
 
     wx.setStorageSync('businessLoanRate', logs)
+  },
+  globalData: {
+    mortgageData: null
   }
 })

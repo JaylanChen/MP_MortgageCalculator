@@ -1,2 +1,35 @@
 <!--pages/detail/detail.wxml-->
-<text>pages/detail/detail.wxml</text>
+<view class="container">
+  <view class="card">
+    <view class="cardItem">
+      <label>每月需还款</label>
+    </view>
+    <view class="cardItem monthlyPayment">
+      <label class="{{monthlyPaymentClass}}">{{monthlyPaymentStr}}</label>
+      <label class="unit">元</label>
+    </view>
+    <view class="cardItem" wx:if="{{balanceStr}}">
+      <label>每月递减 {{balanceStr}} 元</label>
+    </view>
+    <view class="line"></view>
+    <view class="total">
+      <label>还款总额</label>
+      <label>{{TotalPaidStr}} 万</label>
+    </view>
+    <view class="total">
+      <label>支付利息</label>
+      <label>{{totalInterestStr}} 万</label>
+    </view>
+    <view class="total">
+      <label>贷款金额</label>
+      <label>{{totalLoanStr}} 万</label>
+    </view>
+    <view class="total">
+      <label>还款方式</label>
+      <label>{{loanTypeName}}</label>
+    </view>
+  </view>
+  <view class="actions">
+    <button type="primary" bindtap="backToIndex"> 返回 </button>
+  </view>
+</view>

@@ -1,21 +1,17 @@
 //index.js
 const util = require('../../utils/util.js')
 //获取应用实例
-//const app = getApp()
+const app = getApp()
 
 Page({
   /**
    * 页面数据
    */
   data: {
-    businessTotalLoan: '',
-    gjjTotalLoan: '',
+    businessTotalLoan: 0,
+    gjjTotalLoan: 0,
     loanType: '1',
-    paymentMethod: 1,
-    paymentYear: 30,
     startDate: undefined,
-    businessLoanRate: 0,
-    gjjLoanRate: 0,
 
     showGJJ: false,
     showBusiness: true,
@@ -57,7 +53,7 @@ Page({
     var paymentYearArr = [];
     for (let i = 1; i <= 30; i++) {
       paymentYearArr.push({
-        id: i,
+        value: i,
         text: `${i}年 (${i * 12}月)`
       });
     }
@@ -71,36 +67,67 @@ Page({
       businessLoanRate: tempArr[this.data.businessLoanRateIndex].value
     })
   },
+  // 公共方法
+  resetData: function (loanType) {
+    let paymentYear = 30;
+    var currentDate = new Date();
+    this.setData({
+      loanType: loanType,
+      paymentMethodIndex: 0,
+      paymentYearIndex: 29,
+      businessLoanRateIndex: 9,
+      gjjLoanRateIndex: 0,
+      showBusiness: loanType == '1' || loanType == '3',
+      showGJJ: loanType == '2' || loanType == '3',
+      businessLoanRateArr: util.getBusinessLoanRateArr(paymentYear),
+      gjjLoanRateArr: util.getGJJLoanRateArr(paymentYear),
+      startDate: currentDate,
+      startDateStr: util.formatDate(currentDate)
+    })
+  },
+  getMortgageData: function () {
+    var data = {
+      businessTotalLoan: parseFloat(this.data.businessTotalLoan),
+      businessLoanRate: this.data.businessLoanRateArr[this.data.businessLoanRateIndex].value,
+      gjjTotalLoan: parseFloat(this.data.gjjTotalLoan),
+      gjjLoanRate: this.data.gjjLoanRateArr[this.data.gjjLoanRateIndex].value,
+      paymentMethod: this.data.paymentMethodArr[this.data.paymentMethodIndex].id,
+      paymentYear: this.data.paymentYearArr[this.data.paymentYearIndex].value,
+      startDate: this.data.startDate,
+      loanType: this.data.loanType
+    }
+    return data;
+  },
   //事件处理函数
   businessTotalLoanInput: function (e) {
+    let value = e.detail.value || 0;    
+    value = util.retainDecimal(value);
     this.setData({
-      businessTotalLoan: e.detail.value
+      businessTotalLoan: value
     })
   },
   gjjTotalLoanInput: function (e) {
     this.setData({
-      gjjTotalLoan: e.detail.value
+      gjjTotalLoan: e.detail.value || 0
     })
   },
   loanTypeChange: function (e) {
     var loanType = e.detail.value;
-    var tempArr = util.getBusinessLoanRateArr(this.data.paymentYear);
     this.resetData(loanType);
   },
   paymentMethodchange: function (e) {
     var index = e.detail.value;
-    var currentId = this.data.paymentMethodArr[index].id;
     this.setData({
-      paymentMethod: currentId,
       paymentMethodIndex: index
     })
   },
   paymentYearchange: function (e) {
     var index = e.detail.value;
-    var currentId = this.data.paymentYearArr[index].id;
+    var paymentYear = this.data.paymentYearArr[index].value;
     this.setData({
-      paymentYear: currentId,
-      paymentYearIndex: index
+      paymentYearIndex: index,
+      businessLoanRateArr: util.getBusinessLoanRateArr(paymentYear),
+      gjjLoanRateArr: util.getBusinessLoanRateArr(paymentYear)
     })
   },
   startDateChange: function (e) {
@@ -111,52 +138,21 @@ Page({
   },
   businessLoanRateChange: function (e) {
     var index = e.detail.value;
-    var currentRate = this.data.businessLoanRateArr[index].value;
     this.setData({
-      businessLoanRate: parseFloat(currentRate),
       businessLoanRateIndex: index
     })
   },
-  resetData: function (loanType) {
-    var tempArr = util.getBusinessLoanRateArr(30);
-    var tempGJJArr = util.getBusinessLoanRateArr(30);
-    var currentDate = new Date();
+  gjjLoanRateChange: function (e) {
+    var index = e.detail.value;
     this.setData({
-      loanType: loanType,
-      paymentYear: 30,
-      paymentMethodIndex: 0,
-      paymentYearIndex: 29,
-      businessLoanRateIndex: 9,
-      gjjLoanRateIndex: 0,
-      showBusiness: loanType == '1' || loanType == '3',
-      showGJJ: loanType == '2' || loanType == '3',
-      businessLoanRate: tempArr[9].value,
-      gjjLoanRate: tempGJJArr[0].value,
-      startDate: currentDate,
-      startDateStr: util.formatDate(currentDate)
+      gjjLoanRateIndex: index
     })
   },
-  getData: function(){
-
-    console.log(this.data.businessTotalLoan)
-    console.log(this.data.businessLoanRate)
-    console.log(this.data.gjjTotalLoan)
-    console.log(this.data.gjjLoanRate)
-    console.log(this.data.paymentMethod)
-    console.log(this.data.paymentYear)
-    console.log(this.data.startDate)
-    var data = {
-      businessTotalLoan: this.data.businessTotalLoan,
-      businessLoanRate: this.data.businessLoanRateArr[this.data.businessLoanRateIndex],
-      gjjTotalLoan: this.data.gjjTotalLoan,
-      gjjLoanRate: this.data.gjjLoanRateArr[this.data.gjjLoanRateIndex]
-    }
-    return data;
-  },
   calculateLoan: function () {
-    switch (this.data.loanType) {
+    var mortgageData = this.getMortgageData();
+    switch (mortgageData.loanType) {
       case "1":
-        if (this.data.businessTotalLoan.length < 1) {
+        if (!mortgageData.businessTotalLoan) {
           wx.showToast({
             title: '请输入商业贷款金额',
             icon: 'none',
@@ -167,14 +163,9 @@ Page({
           })
           return;
         }
-        console.log(this.data.businessTotalLoan)
-        console.log(this.data.businessLoanRate)
-        console.log(this.data.paymentMethod)
-        console.log(this.data.paymentYear)
-        console.log(this.data.startDate)
         break;
       case "2":
-        if (this.data.gjjTotalLoan.length < 1) {
+        if (!mortgageData.gjjTotalLoan) {
           wx.showToast({
             title: '请输入公积金贷款金额',
             icon: 'none',
@@ -185,14 +176,9 @@ Page({
           })
           return;
         }
-        console.log(this.data.gjjTotalLoan)
-        console.log(this.data.gjjLoanRate)
-        console.log(this.data.paymentMethod)
-        console.log(this.data.paymentYear)
-        console.log(this.data.startDate)
         break;
       case "3":
-        if (this.data.businessTotalLoan.length < 1) {
+        if (!mortgageData.businessTotalLoan) {
           wx.showToast({
             title: '请输入商业贷款金额',
             icon: 'none',
@@ -203,7 +189,7 @@ Page({
           })
           return;
         }
-        if (this.data.gjjTotalLoan.length < 1) {
+        if (!mortgageData.gjjTotalLoan) {
           wx.showToast({
             title: '请输入公积金贷款金额',
             icon: 'none',
@@ -214,15 +200,21 @@ Page({
           })
           return;
         }
-        console.log(this.data.businessTotalLoan)
-        console.log(this.data.businessLoanRate)
-        console.log(this.data.gjjTotalLoan)
-        console.log(this.data.gjjLoanRate)
-        console.log(this.data.paymentMethod)
-        console.log(this.data.paymentYear)
-        console.log(this.data.startDate)
         break;
     }
-
+    app.globalData.mortgageData = mortgageData;
+    wx.navigateTo({
+      url: '../detail/detail'
+    });
+  },
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage: function () {
+    wx.showToast({
+      title: '感谢您的分享，谢谢你。',
+      icon: 'none',
+      duration: 1500
+    })
   }
 })

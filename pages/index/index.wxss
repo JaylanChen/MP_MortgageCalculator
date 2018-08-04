@@ -5,7 +5,7 @@
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
-  margin-bottom: 55rpx;
+  margin-bottom: 60rpx;
 }
 
 .line {
@@ -25,6 +25,7 @@
   font-size: 50rpx;
   margin-top: 10rpx;
   padding-top: 30rpx;
+  height: 60rpx;
 }
 
 .double .totalLoan {
