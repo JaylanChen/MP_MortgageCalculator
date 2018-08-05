@@ -238,7 +238,7 @@ Page({
    */
   onShareAppMessage: function () {
     wx.showToast({
-      title: '感谢您的分享，谢谢你。',
+      title: '感谢您的分享，谢谢您。',
       icon: 'none',
       duration: 1500
     })

@@ -1,40 +1,84 @@
 /**
  *〔贷款本金×月利率×（1＋月利率）＾还款月数〕÷〔（1＋月利率）＾还款月数－1〕
- * 本金还款的月还款额(参数: 贷款总额 / 贷款总月份 / 年利率)
+ * 本金还款的月还款额(参数: 贷款总额 / 贷款总月份 / 月利率)
  */
-const equalPrincipalAndInterest = (total, months, loanRate) => {
-    total = total * 10000;
-    let monthRate = loanRate / 100.0 / 12.0;
-    var tempRate = Math.pow((1 + monthRate), months);
-    var monthlyPayment = total * monthRate * tempRate / (tempRate - 1);
-    return {
-        monthlyPayment: monthlyPayment,
-        principal: 0,
-        interest: 0,
-        balance: 0
-    }
+const equalPrincipalAndInterest = (total, months, monthRate) => {
+    let tempRate = Math.pow((1 + monthRate), months);
+    let monthlyPayment = total * monthRate * tempRate / (tempRate - 1);
+    return monthlyPayment;
 }
 
 /**
  * 每月月供额 = 每月应还本金 + 每月应还利息
  * 每月应还本金 = 贷款本金 ÷ 还款月数
  * 每月应还利息 = (贷款本金 - 已归还本金累计额) × 月利率
- * 本金还款的月还款额(参数: 贷款总额 / 贷款总月份 / 年利率 / 贷款当前月0～length-1)
+ * 本金还款的月还款额(参数: 贷款总额 / 贷款总月份 / 月利率)
  */
-const equalPrincipal = (total, months, loanRate, currentMonth = 0) => {
-    total = total * 10000;
-    let monthRate = loanRate / 100.0 / 12.0;
-    var principal = total / months * 1.0;
-    var interest = (total - principal * currentMonth) * monthRate;
-    var monthlyPayment = principal + interest;
-    var balance = principal * monthRate;
-    return {
-        monthlyPayment: monthlyPayment,
-        principal: principal,
-        interest: interest,
-        balance: balance
-    }
+const equalPrincipal = (total, months, monthRate) => {
+    let principal = total / months * 1.0;
+    let interest = total * monthRate;
+    let monthlyPayment = principal + interest;
+    return monthlyPayment;
 }
+
+let tempTotalPaid = 0;
+
+/**
+ * 等额本息 月供明细
+ * @param {*待还本金} surplus 
+ * @param {*没有偿还本息} monthlyPayment 
+ * @param {*月利率} monthRate 
+ * @param {*还款月数} months 
+ * @param {*开始还款日期} startDate 
+ */
+const getInterestDetails = (surplus, monthlyPayment, monthRate, months, startDate) => {
+    tempTotalPaid = 0;
+    let monthDetails = [];
+    for (let j = 0; j < months; j++) {
+        let interest = surplus * monthRate;
+        let principal = monthlyPayment - interest;
+        surplus -= principal;
+        tempTotalPaid += monthlyPayment;
+
+        monthDetails.push({
+            monthlyPayment: monthlyPayment,
+            principal: principal,
+            interest: interest,
+            surplus: surplus,
+            paymentDate: startDate.addMonths(j)
+        });
+    }
+    return monthDetails;
+}
+
+/**
+ * 等额本金 月供明细
+ * @param {*待还本金} surplus 
+ * @param {*没有偿还本金} principal 
+ * @param {*月利率} monthRate 
+ * @param {*还款月数} months 
+ * @param {*开始还款日期} startDate 
+ */
+const getPrincipalDetails = (surplus, principal, monthRate, months, startDate) => {
+    tempTotalPaid = 0;
+    let monthDetails = [];
+    for (let j = 0; j < months; j++) {
+        let interest = surplus * monthRate;
+        let monthlyPayment = principal + interest;
+        surplus -= principal;
+        tempTotalPaid += monthlyPayment;
+
+        monthDetails.push({
+            monthlyPayment: monthlyPayment,
+            principal: principal,
+            interest: interest,
+            surplus: surplus,
+            paymentDate: startDate.addMonths(j)
+        });
+    }
+    return monthDetails;
+}
+
 
 /**
  * 计算月供明细
@@ -47,99 +91,114 @@ const calculatePaymentDetail = (mortgage) => {
     let totalLoan = 0;
     let totalPaid = 0;
     let monthDetails = [];
+
+    mortgage.businessTotalLoan *= 10000;
+    mortgage.gjjTotalLoan *= 10000;
+    mortgage.businessLoanRate /= 100;
+    mortgage.gjjLoanRate /= 100;
+
+    let monthSYRate = mortgage.businessLoanRate / 12.0;
+    let monthGJJRate = mortgage.gjjLoanRate / 12.0;
+
     switch (mortgage.loanType) {
         case '1': //商业贷款
             totalLoan = mortgage.businessTotalLoan;
             // 等额本息
             if (mortgage.paymentMethod === 1) {
-                for (let j = 0; j < paymentMonth; j++) {
-                    //商业本息月还款额
-                    let syInterest = equalPrincipalAndInterest(mortgage.businessTotalLoan, paymentMonth, mortgage.businessLoanRate, j);
-                    totalPaid += syInterest.monthlyPayment;
-                    monthDetails.push(syInterest);
-                }
+                monthlyPayment = equalPrincipalAndInterest(mortgage.businessTotalLoan, paymentMonth, monthSYRate);
+                monthDetails = getInterestDetails(mortgage.businessTotalLoan, monthlyPayment, monthSYRate, paymentMonth, mortgage.startDate);
+                totalPaid = tempTotalPaid;
             } else {
                 //等额本金
-                for (let j = 0; j < paymentMonth; j++) {
-                    //商业本金月还款额
-                    let tsyPrincial = equalPrincipal(mortgage.businessTotalLoan, paymentMonth, mortgage.businessLoanRate, j);
-                    totalPaid += tsyPrincial.monthlyPayment;
-
-                    monthDetails.push(tsyPrincial);
-                }
+                let principal = mortgage.businessTotalLoan / paymentMonth * 1.0;
+                monthlyPayment = equalPrincipal(mortgage.businessTotalLoan, paymentMonth, monthSYRate);
+                monthDetails = getPrincipalDetails(mortgage.businessTotalLoan, principal, monthSYRate, paymentMonth, mortgage.startDate);
+                totalPaid = tempTotalPaid;
+                balance = monthDetails[0].principal * monthSYRate;
             }
             break;
         case '2': //公积金贷款
             totalLoan = mortgage.gjjTotalLoan;
             // 等额本息
             if (mortgage.paymentMethod === 1) {
-                for (let j = 0; j < paymentMonth; j++) {
-                    //公积金本息月还款额
-                    let gjjInterest = equalPrincipalAndInterest(mortgage.gjjTotalLoan, paymentMonth, mortgage.gjjLoanRate, j);
-                    totalPaid += gjjInterest.monthlyPayment;
-                    monthDetails.push(gjjInterest);
-                }
+                monthlyPayment = equalPrincipalAndInterest(mortgage.gjjTotalLoan, paymentMonth, monthGJJRate);
+                monthDetails = getInterestDetails(mortgage.gjjTotalLoan, monthlyPayment, monthGJJRate, paymentMonth, mortgage.startDate);
+                totalPaid = tempTotalPaid;
             } else {
                 //等额本金
-                for (let j = 0; j < paymentMonth; j++) {
-                    //本金月还款额
-                    let gjjPrincial = equalPrincipal(mortgage.gjjTotalLoan, paymentMonth, mortgage.gjjLoanRate, j);
-                    totalPaid += tempPrincial.monthlyPayment;
-
-                    monthDetails.push(gjjPrincial);
-                }
+                let principal = mortgage.gjjTotalLoan / paymentMonth * 1.0;
+                monthlyPayment = equalPrincipal(mortgage.gjjTotalLoan, paymentMonth, monthGJJRate);
+                monthDetails = getPrincipalDetails(mortgage.gjjTotalLoan, principal, monthGJJRate, paymentMonth, mortgage.startDate);
+                totalPaid = tempTotalPaid;
+                balance = monthDetails[0].principal * monthSYRate;
             }
             break;
         case '3': //组合贷款
             totalLoan = mortgage.businessTotalLoan + mortgage.gjjTotalLoan;
             // 等额本息
             if (mortgage.paymentMethod === 1) {
-                for (let j = 0; j < paymentMonth; j++) {
-                    //商业本息月还款额
-                    let syInterest = equalPrincipalAndInterest(mortgage.businessTotalLoan, paymentMonth, mortgage.businessLoanRate, j);
-                    //公积金本息月还款额
-                    let gjjInterest = equalPrincipalAndInterest(mortgage.gjjTotalLoan, paymentMonth, mortgage.gjjLoanRate, j);
+                //商业
+                let syMonthlyPayment = equalPrincipalAndInterest(mortgage.businessTotalLoan, paymentMonth, monthSYRate);
+                let syMonthDetails = getInterestDetails(mortgage.businessTotalLoan, syMonthlyPayment, monthSYRate, paymentMonth, mortgage.startDate);
+                let syTotalPaid = tempTotalPaid;
+                //公积金
+                let gjjMonthlyPayment = equalPrincipalAndInterest(mortgage.gjjTotalLoan, paymentMonth, monthGJJRate);
+                let gjjMonthDetails = getInterestDetails(mortgage.gjjTotalLoan, gjjMonthlyPayment, monthGJJRate, paymentMonth, mortgage.startDate);
+                let gjjTotalPaid = tempTotalPaid;
 
+                monthlyPayment = syMonthlyPayment + gjjMonthlyPayment;
+                totalPaid = syTotalPaid + gjjTotalPaid;
+
+                for (let j = 0; j < paymentMonth; j++) {
+                    let syItem = syMonthDetails[j];
+                    let gjjItem = gjjMonthDetails[j]
                     let totalInterest = {
-                        monthlyPayment: syInterest.monthlyPayment + gjjInterest.monthlyPayment,
-                        principal: syInterest.principal + gjjInterest.principal,
-                        interest: syInterest.interest + gjjInterest.interest,
-                        balance: syInterest.balance + gjjInterest.balance
+                        monthlyPayment: syItem.monthlyPayment + gjjItem.monthlyPayment,
+                        principal: syItem.principal + gjjItem.principal,
+                        interest: syItem.interest + gjjItem.interest,
+                        surplus: syItem.surplus + gjjItem.surplus,
+                        paymentDate: syItem.paymentDate
                     };
-                    totalPaid += totalInterest.monthlyPayment;
+                    //totalPaid += totalInterest.monthlyPayment;
                     monthDetails.push(totalInterest);
                 }
             } else {
                 //等额本金
-                // let syPrincipal = equalPrincipal(mortgage.businessTotalLoan, paymentMonth, mortgage.businessLoanRate);
-                // let gjjPrincipal = equalPrincipal(mortgage.gjjTotalLoan, paymentMonth, mortgage.gjjLoanRate);
-                // monthlyPayment = syPrincipal.monthlyPayment + gjjPrincipal.monthlyPayment;
-                // balance = gjjPrincipal.balance + syPrincipal.balance;
-                // totalPaid = monthlyPayment;
+                //商业
+                let syPrincipal = mortgage.gjjTotalLoan / paymentMonth * 1.0;
+                let syMonthlyPayment = equalPrincipal(mortgage.businessTotalLoan, paymentMonth, monthSYRate);
+                let syMonthDetails = getPrincipalDetails(mortgage.businessTotalLoan, syPrincipal, monthSYRate, paymentMonth, mortgage.startDate);
+                let syTotalPaid = tempTotalPaid;
+                //公积金
+                let gjjPrincipal = mortgage.gjjTotalLoan / paymentMonth * 1.0;
+                let gjjMonthlyPayment = equalPrincipal(mortgage.gjjTotalLoan, paymentMonth, monthGJJRate);
+                let gjjMonthDetails = getPrincipalDetails(mortgage.gjjTotalLoan, gjjPrincipal, monthGJJRate, paymentMonth, mortgage.startDate);
+                let gjjTotalPaid = tempTotalPaid;
+
+                let syBalance = syMonthDetails[0].principal * monthSYRate;
+                let gjjBalance = gjjMonthDetails[0].principal * monthSYRate;
+                balance = syBalance + gjjBalance;
+                monthlyPayment = syMonthlyPayment + gjjMonthlyPayment;
+                totalPaid = syTotalPaid + gjjTotalPaid;
 
                 for (let j = 0; j < paymentMonth; j++) {
-                    //商业本金月还款额
-                    let syPrincipal = equalPrincipal(mortgage.businessTotalLoan, paymentMonth, mortgage.businessLoanRate, j);
-                    totalPaid += syPrincipal.monthlyPayment;
-                    //公积金本金月还款额
-                    let gjjPrincipal = equalPrincipal(mortgage.businessTotalLoan, paymentMonth, mortgage.businessLoanRate, j);
-                    totalPaid += gjjPrincipal.monthlyPayment;
-
-                    let totalPrincial = {
-                        monthlyPayment: syPrincipal.monthlyPayment + gjjPrincipal.monthlyPayment,
-                        principal: syPrincipal.principal + gjjPrincipal.principal,
-                        interest: syPrincipal.interest + gjjPrincipal.interest,
-                        balance: syPrincipal.balance + gjjPrincipal.balance
+                    let syItem = syMonthDetails[j];
+                    let gjjItem = gjjMonthDetails[j]
+                    let totalInterest = {
+                        monthlyPayment: syItem.monthlyPayment + gjjItem.monthlyPayment,
+                        principal: syItem.principal + gjjItem.principal,
+                        interest: syItem.interest + gjjItem.interest,
+                        surplus: syItem.surplus + gjjItem.surplus,
+                        paymentDate: syItem.paymentDate
                     };
-                    monthDetails.push(totalPrincial);
+                    //totalPaid += totalInterest.monthlyPayment;
+                    monthDetails.push(totalInterest);
                 }
             }
             break;
     }
 
-    monthlyPayment = monthDetails[0].monthlyPayment;
-    balance = monthDetails[0].balance;
-
+    totalLoan = totalLoan / 10000.0;
     totalPaid = totalPaid / 10000.0;
     return {
         monthlyPayment: monthlyPayment,
