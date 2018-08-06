@@ -15,11 +15,12 @@ Date.prototype.getDaysInMonth = function () {
 };
 
 Date.prototype.addMonths = function (value) {
-  var n = this.getDate();
-  this.setDate(1);
-  this.setMonth(this.getMonth() + value);
-  this.setDate(Math.min(n, this.getDaysInMonth()));
-  return this;
+  var newDate = new Date(this.getTime())
+  var n = newDate.getDate();
+  newDate.setDate(1);
+  newDate.setMonth(newDate.getMonth() + value);
+  newDate.setDate(Math.min(n, newDate.getDaysInMonth()));
+  return newDate;
 };
 
 const formatDate = date => {

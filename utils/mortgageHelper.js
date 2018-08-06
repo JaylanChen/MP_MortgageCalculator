@@ -107,10 +107,7 @@ const getMonthDetails = (months, startDate, loadDatas) => {
                 monthInterest.surplus += interestItem.surplus;
             }
         }
-        monthInterest.paymentDate = startDate;
-        monthInterest.paymentDate.addMonths(j);
-        console.log(util.formatDate(startDate));
-console.log(util.formatDate(monthInterest.paymentDate));
+        monthInterest.paymentDate = startDate.addMonths(j);
         tempTotalPaid += monthInterest.monthlyPayment;
         let currentYear = monthInterest.paymentDate.getFullYear();
         let arrIndex = currentYear - startYear;
