@@ -42,9 +42,9 @@ const getInterestMonthDetail = (surplus, monthlyPayment, monthRate) => {
     let principal = monthlyPayment - interest;
     surplus = surplus - principal;
     return {
-        monthlyPayment: util.retainDecimal(monthlyPayment),
-        principal: util.retainDecimal(principal),
-        interest: util.retainDecimal(interest),
+        monthlyPayment: monthlyPayment,
+        principal: principal,
+        interest: interest,
         surplus: surplus
     }
 }
@@ -60,9 +60,9 @@ const getPrincipalMonthDetail = (surplus, principal, monthRate) => {
     let monthlyPayment = principal + interest;
     surplus -= principal;
     return {
-        monthlyPayment: util.retainDecimal(monthlyPayment),
-        principal: util.retainDecimal(principal),
-        interest: util.retainDecimal(interest),
+        monthlyPayment: monthlyPayment,
+        principal: principal,
+        interest: interest,
         surplus: surplus
     }
 }
@@ -126,7 +126,6 @@ const getMonthDetails = (months, startDate, loadDatas) => {
         }
         tempItem.months.push(monthInterest);
         monthDetails[arrIndex] = tempItem;
-        //monthDetails.push(monthInterest);
     }
     return monthDetails;
 }
