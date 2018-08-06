@@ -79,12 +79,15 @@ Page({
       paymentYearIndex: 29,
       businessLoanRateIndex: 9,
       gjjLoanRateIndex: 0,
-      showBusiness: loanType == '1' || loanType == '3',
-      showGJJ: loanType == '2' || loanType == '3',
+      showBusiness: loanType === '1' || loanType === '3',
+      showGJJ: loanType === '2' || loanType === '3',
       businessLoanRateArr: util.getBusinessLoanRateArr(paymentYear),
       gjjLoanRateArr: util.getGJJLoanRateArr(paymentYear),
       startDate: currentDate,
-      startDateStr: util.formatDate(currentDate)
+      startDateStr: util.formatDate(currentDate),
+      businessFocus: loanType === '1' || loanType === '3',
+      gjjFocus: loanType === '2',
+
     })
   },
   getMortgageData: function () {
