@@ -16,7 +16,10 @@ Page({
     totalLoanStr: '',
     totalInterestStr: '',
     TotalPaidStr: '',
-    loanTypeName: ''
+    loanTypeName: '',
+    paymentYear: 0,
+    showDetail: false,
+    payDetails: []
   },
 
   /**
@@ -25,15 +28,15 @@ Page({
   onLoad: function (options) {
     let mortgage = app.globalData.mortgageData;
     let loanTypeName = '等额本息(每月等额还款)';
-    if(mortgage.paymentMethod === 2){
+    if (mortgage.paymentMethod === 2) {
       loanTypeName = '等额本金(每月递减还款)';
     }
     var mortgageDetail = mortgageHelper.calculatePaymentDetail(mortgage);
 
-    mortgageDetail.monthlyPayment = util.retainDecimal(mortgageDetail.monthlyPayment);
+    mortgageDetail.monthlyPayment = util.truncate(mortgageDetail.monthlyPayment);
     let balanceStr = '';
     if (mortgageDetail.balance > 0) {
-      mortgageDetail.balance = util.retainDecimal(mortgageDetail.balance);
+      mortgageDetail.balance = util.truncate(mortgageDetail.balance);
       balanceStr = mortgageDetail.balance.toLocaleString();
     }
     let paymentMonthStr = mortgageDetail.monthlyPayment.toLocaleString();
@@ -42,14 +45,13 @@ Page({
       monthlyPaymentClass = '';
     } else if (paymentMonthStr.length < 10) {
       monthlyPaymentClass = 'bigNum1';
-    }else if (paymentMonthStr.length <14) {
+    } else if (paymentMonthStr.length < 14) {
       monthlyPaymentClass = 'bigNum2';
-    } else{
+    } else {
       monthlyPaymentClass = 'bigNum3';
     }
-    //mortgageDetail.totalPaid = mortgageDetail.totalPaid.toFixed(2);
-    mortgageDetail.totalPaid = util.retainDecimal(mortgageDetail.totalPaid);
-    mortgageDetail.totalInterest = util.retainDecimal(mortgageDetail.totalInterest);
+    mortgageDetail.totalPaid = util.truncate(mortgageDetail.totalPaid);
+    mortgageDetail.totalInterest = util.truncate(mortgageDetail.totalInterest);
     this.setData({
       monthlyPaymentStr: paymentMonthStr,
       monthlyPaymentClass: monthlyPaymentClass,
@@ -57,12 +59,21 @@ Page({
       totalLoanStr: mortgageDetail.totalLoan.toLocaleString(),
       totalInterestStr: mortgageDetail.totalInterest.toLocaleString(),
       TotalPaidStr: mortgageDetail.totalPaid.toLocaleString(),
-      loanTypeName: loanTypeName
+      loanTypeName: loanTypeName,
+      paymentYear: mortgage.paymentYear,
+      payDetails: mortgageDetail.payDetails
     });
   },
-  backToIndex: function (){
-    wx.navigateTo({
-      url: '../index/index'
+  showYearsDetailToggle: function () {
+    this.setData({
+      showDetail: !this.data.showDetail
+    });
+  },
+  showMonthDetailToggle: function (event) {
+    let index = event.currentTarget.dataset.index;
+    var showMonths = 'payDetails[' + index + '].showMonths';
+    this.setData({
+      [showMonths]: !this.data.payDetails[index].showMonths
     });
   },
   /**

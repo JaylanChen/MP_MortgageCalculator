@@ -30,7 +30,7 @@ const formatDate = date => {
   return `${year}年${month}月${day}日`;
 }
 
-const retainDecimal = (num, decimal = 2) => {
+const truncate = (num, decimal = 2) => {
   var numStr = (num * 1.0).toFixed(decimal + 1);
   return parseFloat(numStr.substr(0, numStr.length - 1));
 }
@@ -114,7 +114,7 @@ const getGJJLoanRateArr = year => {
 
 module.exports = {
   formatDate: formatDate,
-  retainDecimal: retainDecimal,
+  truncate: truncate,
   getBusinessLoanRateArr: getBusinessLoanRateArr,
   getGJJLoanRateArr: getGJJLoanRateArr
 }

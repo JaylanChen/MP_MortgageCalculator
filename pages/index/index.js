@@ -115,7 +115,7 @@ Page({
     }
     let valueStr = value.toString();
     if(valueStr.indexOf(".") < valueStr.length -2){
-      value = util.retainDecimal(value);
+      value = util.truncate(value);
       this.setData({
         businessTotalLoan: value,
         businessTotalLoanStr: value
@@ -133,7 +133,7 @@ Page({
     }
     let valueStr = value.toString();
     if(valueStr.indexOf(".") < valueStr.length -2){
-      value = util.retainDecimal(value);
+      value = util.truncate(value);
       this.setData({
         gjjTotalLoan: value,
         gjjTotalLoanStr: value

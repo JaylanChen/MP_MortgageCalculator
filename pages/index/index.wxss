@@ -46,16 +46,6 @@
   width: 100%;
 }
 
-.dropdown {
-  width: 8px;
-  height: 8px;
-  border-style: solid;
-  border-width: 1px 1px 0 0;
-  transform: rotate(135deg);
-  margin-bottom: 5rpx;
-  margin-left: 20rpx;
-}
-
 .actions {
   position: fixed;
   bottom: 50rpx;

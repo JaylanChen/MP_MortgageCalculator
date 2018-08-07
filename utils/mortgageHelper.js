@@ -25,7 +25,7 @@ const equalPrincipal = (total, months, monthRate) => {
     // 每月应还利息 = (贷款本金 - 已归还本金累计额) × 月利率
     let principal = total / months * 1.0;
     let interest = total * monthRate;
-    let monthlyPayment = util.retainDecimal(principal + interest);
+    let monthlyPayment = util.truncate(principal + interest);
     return monthlyPayment;
 }
 
@@ -92,7 +92,8 @@ const getMonthDetails = (months, startDate, loadDatas) => {
                 monthlyPayment: 0,
                 principal: 0,
                 interest: 0,
-                surplus: 0
+                surplus: 0,
+                month: 0
             };
             for (let k = 0; k < loadDatas.length; k++) {
                 let [monthdetailFunc, surplus, monthMoney, monthRate] = loadDatas[k];
@@ -108,6 +109,8 @@ const getMonthDetails = (months, startDate, loadDatas) => {
             }
         }
         monthInterest.paymentDate = startDate.addMonths(j);
+        monthInterest.month = monthInterest.paymentDate.getMonth() + 1;
+
         tempTotalPaid += monthInterest.monthlyPayment;
         let currentYear = monthInterest.paymentDate.getFullYear();
         let arrIndex = currentYear - startYear;
@@ -121,7 +124,8 @@ const getMonthDetails = (months, startDate, loadDatas) => {
                 yearPaid: monthInterest.monthlyPayment,
                 yearInterest: monthInterest.interest,
                 year: currentYear,
-                months: []
+                months: [],
+                showMonths: false
             };
         }
         tempItem.months.push(monthInterest);
@@ -140,7 +144,7 @@ const calculatePaymentDetail = (mortgage) => {
     let paymentMonth = mortgage.paymentYear * 12;
     let totalLoan = 0;
     let totalPaid = 0;
-    let monthDetails = [];
+    let payDetails = [];
 
     mortgage.businessTotalLoan *= 10000;
     mortgage.gjjTotalLoan *= 10000;
@@ -159,7 +163,7 @@ const calculatePaymentDetail = (mortgage) => {
                 monthlyPayment = equalPrincipalAndInterest(mortgage.businessTotalLoan, paymentMonth, monthSYRate);
 
                 loadDatas.push([getInterestMonthDetail, mortgage.businessTotalLoan, monthlyPayment, monthSYRate]);
-                monthDetails = getMonthDetails(paymentMonth, mortgage.startDate, loadDatas);
+                payDetails = getMonthDetails(paymentMonth, mortgage.startDate, loadDatas);
                 totalPaid = tempTotalPaid;
             } else {
                 //等额本金
@@ -167,7 +171,7 @@ const calculatePaymentDetail = (mortgage) => {
                 monthlyPayment = equalPrincipal(mortgage.businessTotalLoan, paymentMonth, monthSYRate);
 
                 loadDatas.push([getPrincipalMonthDetail, mortgage.businessTotalLoan, principal, monthSYRate]);
-                monthDetails = getMonthDetails(paymentMonth, mortgage.startDate, loadDatas);
+                payDetails = getMonthDetails(paymentMonth, mortgage.startDate, loadDatas);
                 totalPaid = tempTotalPaid;
                 balance = principal * monthSYRate;
             }
@@ -179,7 +183,7 @@ const calculatePaymentDetail = (mortgage) => {
                 monthlyPayment = equalPrincipalAndInterest(mortgage.gjjTotalLoan, paymentMonth, monthGJJRate);
 
                 loadDatas.push([getInterestMonthDetail, mortgage.gjjTotalLoan, monthlyPayment, monthGJJRate]);
-                monthDetails = getMonthDetails(paymentMonth, mortgage.startDate, loadDatas);
+                payDetails = getMonthDetails(paymentMonth, mortgage.startDate, loadDatas);
                 totalPaid = tempTotalPaid;
             } else {
                 //等额本金
@@ -187,7 +191,7 @@ const calculatePaymentDetail = (mortgage) => {
                 monthlyPayment = equalPrincipal(mortgage.gjjTotalLoan, paymentMonth, monthGJJRate);
 
                 loadDatas.push([getPrincipalMonthDetail, mortgage.gjjTotalLoan, principal, monthGJJRate]);
-                monthDetails = getMonthDetails(paymentMonth, mortgage.startDate, loadDatas);
+                payDetails = getMonthDetails(paymentMonth, mortgage.startDate, loadDatas);
                 totalPaid = tempTotalPaid;
                 balance = principal * monthSYRate;
             }
@@ -204,7 +208,7 @@ const calculatePaymentDetail = (mortgage) => {
 
                 loadDatas.push([getInterestMonthDetail, mortgage.businessTotalLoan, syMonthlyPayment, monthSYRate]);
                 loadDatas.push([getInterestMonthDetail, mortgage.gjjTotalLoan, gjjMonthlyPayment, monthGJJRate]);
-                monthDetails = getMonthDetails(paymentMonth, mortgage.startDate, loadDatas);
+                payDetails = getMonthDetails(paymentMonth, mortgage.startDate, loadDatas);
                 totalPaid = tempTotalPaid;
             } else {
                 //等额本金
@@ -222,13 +226,12 @@ const calculatePaymentDetail = (mortgage) => {
 
                 loadDatas.push([getPrincipalMonthDetail, mortgage.businessTotalLoan, syPrincipal, monthSYRate]);
                 loadDatas.push([getPrincipalMonthDetail, mortgage.gjjTotalLoan, gjjPrincipal, monthGJJRate]);
-                monthDetails = getMonthDetails(paymentMonth, mortgage.startDate, loadDatas);
+                payDetails = getMonthDetails(paymentMonth, mortgage.startDate, loadDatas);
                 totalPaid = tempTotalPaid;
             }
             break;
     }
 
-    console.log(monthDetails)
     totalLoan = totalLoan / 10000.0;
     totalPaid = totalPaid / 10000.0;
     return {
@@ -237,7 +240,7 @@ const calculatePaymentDetail = (mortgage) => {
         totalLoan: totalLoan,
         totalPaid: totalPaid,
         totalInterest: totalPaid - totalLoan,
-        monthDetails: monthDetails
+        payDetails: payDetails
     };
 
 }
