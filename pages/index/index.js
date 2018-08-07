@@ -13,6 +13,7 @@ Page({
     loanType: '1',
     startDate: undefined,
 
+    actionsBottom: 50,
     businessTotalLoanStr: '',
     gjjTotalLoanStr: '',
     showGJJ: false,
@@ -104,9 +105,21 @@ Page({
     return data;
   },
   //事件处理函数
+  inputFocus: function (e) {
+    this.setData({
+      actionsBottom: e.detail.height
+    })
+    return;
+  },
+  inputBlur: function (e) {
+    this.setData({
+      actionsBottom: 0
+    })
+    return;
+  },
   businessTotalLoanInput: function (e) {
     let value = e.detail.value || 0;
-    if(value === 0){
+    if (value === 0) {
       this.setData({
         businessTotalLoan: 0,
         businessTotalLoanStr: ''
@@ -114,7 +127,7 @@ Page({
       return;
     }
     let valueStr = value.toString();
-    if(valueStr.indexOf(".") < valueStr.length -2){
+    if (valueStr.indexOf(".") < valueStr.length - 2) {
       value = util.truncate(value);
       this.setData({
         businessTotalLoan: value,
@@ -124,7 +137,7 @@ Page({
   },
   gjjTotalLoanInput: function (e) {
     let value = e.detail.value || 0.0;
-    if(value === 0){
+    if (value === 0) {
       this.setData({
         gjjTotalLoan: 0,
         gjjTotalLoanStr: ''
@@ -132,7 +145,7 @@ Page({
       return;
     }
     let valueStr = value.toString();
-    if(valueStr.indexOf(".") < valueStr.length -2){
+    if (valueStr.indexOf(".") < valueStr.length - 2) {
       value = util.truncate(value);
       this.setData({
         gjjTotalLoan: value,

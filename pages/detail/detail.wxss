@@ -111,7 +111,8 @@
   display: flex;
   flex-direction: column;
 }
-.yearDetail .yearItem:first-child{
+
+.yearDetail .yearItem:first-child {
   width: 55%;
 }
 

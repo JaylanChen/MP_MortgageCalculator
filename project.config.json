@@ -11,7 +11,7 @@
 		"newFeature": true
 	},
 	"compileType": "miniprogram",
-	"libVersion": "2.0.4",
+	"libVersion": "2.2.2",
 	"appid": "wx32e95f5a9e591f46",
 	"projectname": "MortgageCalculator",
 	"isGameTourist": false,
