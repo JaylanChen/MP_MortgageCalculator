@@ -19,7 +19,7 @@ Page({
     showGJJ: false,
     showBusiness: true,
     gjjFocus: false,
-    businessFocus: true,
+    businessFocus: false,
     startDateStr: '',
 
     paymentMethodIndex: 0,
@@ -86,8 +86,8 @@ Page({
       gjjLoanRateArr: util.getGJJLoanRateArr(paymentYear),
       startDate: currentDate,
       startDateStr: util.formatDate(currentDate),
-      businessFocus: loanType === '1' || loanType === '3',
-      gjjFocus: loanType === '2',
+      // businessFocus: loanType === '1' || loanType === '3',
+      // gjjFocus: loanType === '2',
 
     })
   },

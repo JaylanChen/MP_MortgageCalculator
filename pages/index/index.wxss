@@ -7,6 +7,9 @@
   width: 100%;
   margin-bottom: 60rpx;
 }
+.form-group.loan {
+  min-height: 180rpx;
+}
 
 .line {
   padding-bottom: 30rpx;
