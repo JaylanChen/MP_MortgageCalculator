@@ -84,6 +84,12 @@ Page({
       title: '感谢您的分享，谢谢您！',
       icon: 'none',
       duration: 1500
-    })
+    });
+
+    return {
+      title: '个人房贷(商业/公积金/组合贷款)计算，每月还款明细查看',
+      path: '/page/index',
+      imageUrl: '../../images/share.jpg'
+    }
   }
 })
