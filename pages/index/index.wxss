@@ -52,6 +52,6 @@
 .actions {
   background: #fff;
   position: fixed;
-  width: 88%;
+  width: 90%;
   padding: 0 6% 50rpx;
 }
