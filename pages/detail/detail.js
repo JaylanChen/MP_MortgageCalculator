@@ -88,7 +88,7 @@ Page({
 
     return {
       title: '个人房贷(商业/公积金/组合贷款)计算，每月还款明细查看',
-      path: '/page/index',
+      path: '/pages/index/index?f=detail',
       imageUrl: '../../images/share.jpg'
     }
   }
