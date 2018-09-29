@@ -53,5 +53,5 @@
   background: #fff;
   position: fixed;
   width: 90%;
-  padding: 0 6% 50rpx;
+  padding: 40rpx 6%;
 }

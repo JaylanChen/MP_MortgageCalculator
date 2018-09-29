@@ -24,7 +24,7 @@ Page({
 
     paymentMethodIndex: 0,
     paymentYearIndex: 29,
-    businessLoanRateIndex: 9,
+    businessLoanRateIndex: 6,
     gjjLoanRateIndex: 0,
     loanTypeArr: [{
       text: '商业贷款',
@@ -78,7 +78,7 @@ Page({
       loanType: loanType,
       paymentMethodIndex: 0,
       paymentYearIndex: 29,
-      businessLoanRateIndex: 9,
+      businessLoanRateIndex: 6,
       gjjLoanRateIndex: 0,
       showBusiness: loanType === '1' || loanType === '3',
       showGJJ: loanType === '2' || loanType === '3',
