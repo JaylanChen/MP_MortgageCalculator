@@ -55,10 +55,11 @@ const businessRateDiscountArr = [0.7, 0.8, 0.83, 0.85, 0.9, 0.95, 1, 1.05, 1.1, 
  * 获取当前商业利率波动
  */
 const getBusinessLoanRateArr = year => {
-  const baseRate = getBusinessBaseRate(year);
+  const baseRate = parseInt(getBusinessBaseRate(year) * 10);
   let loanRateArr = [];
   for (var discount of businessRateDiscountArr) {
-    let rateValue = (baseRate * discount).toLocaleString();
+    var intDiscount = parseInt(discount * 100);
+    let rateValue = (baseRate * intDiscount / 1000.0).toLocaleString();
     let rateText = '';
     if (discount < 1) {
       rateText = `${discount}折(${rateValue}%)`

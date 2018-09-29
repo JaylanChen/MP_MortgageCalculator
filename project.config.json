@@ -5,13 +5,13 @@
 	},
 	"setting": {
 		"urlCheck": true,
-		"es6": true,
+		"es6": false,
 		"postcss": true,
 		"minified": true,
 		"newFeature": true
 	},
 	"compileType": "miniprogram",
-	"libVersion": "2.2.2",
+	"libVersion": "2.3.0",
 	"appid": "wx32e95f5a9e591f46",
 	"projectname": "MortgageCalculator",
 	"isGameTourist": false,
