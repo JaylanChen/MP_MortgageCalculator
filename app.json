@@ -8,5 +8,6 @@
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "房贷计算",
     "navigationBarTextStyle": "black"
-  }
+  },
+  "sitemapLocation": "sitemap.json"
 }
