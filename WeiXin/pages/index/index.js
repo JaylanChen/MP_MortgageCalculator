@@ -22,11 +22,11 @@ Page({
     businessFocus: false,
     startDateStr: '',
     LPR: true,
-    LPRValue: 4.75,
+    LPRValue: 4.65,
     basePoint: 0,
-    LPRValueText: '4.75',
+    LPRValueText: '4.65',
     basePointText: '0',
-    LPRRateValue: 4.75,
+    LPRRateValue: 4.65,
 
     paymentMethodIndex: 0,
     paymentYearIndex: 29,
@@ -180,9 +180,9 @@ Page({
   paymentYearchange: function (e) {
     let index = e.detail.value;
     let paymentYear = this.data.paymentYearArr[index].value;
-    let lpr = 4.75;
+    let lpr = 4.65;
     if (paymentYear == 1) {
-      lpr = 4.05;
+      lpr = 3.85;
     }
     this.setData({
       LPRValue: lpr,
